@@ -1,20 +1,47 @@
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Phone Verification</title>
-  </head>
+    <style>
+        .live-time {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
 
-  <body>
+<body>
+    <!-- Live Time Display -->
+    <div class="live-time" id="live-time"></div>
+
     <h1>Challenge</h1>
     <form action="/verify" accept-charset="UTF-8" method="post">
-      <div>
-        <label>Enter the code you were sent:</label>
-        <input name="token" id="token" required>
-      </div>
-      <button name="button" type="submit">Verify</button>
+        <div>
+            <label>Enter the code you were sent:</label>
+            <input name="token" id="token" required>
+        </div>
+        <button name="button" type="submit">Verify</button>
     </form>
 
     {% if error_message %}
-      <p style="color: red;">{{ error_message }}</p>
+        <p style="color: red;">{{ error_message }}</p>
     {% endif %}
-  </body>
+
+    <script>
+        function updateLiveTime() {
+            const liveTimeElement = document.getElementById('live-time');
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const formattedTime = `Current Time: ${hours}:${minutes}:${seconds}`;
+            liveTimeElement.textContent = formattedTime;
+            setTimeout(updateLiveTime, 1000); // Update every second
+        }
+
+        document.addEventListener('DOMContentLoaded', updateLiveTime);
+    </script>
+</body>
 </html>

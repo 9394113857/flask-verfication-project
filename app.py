@@ -183,7 +183,7 @@ def password_reset():
             if details is None:
                 return ({"message": "Invalid username or phone number"}), 401
             else:
-                api.phones.verification_start(phonenumber, country_code='91', via='call')  # Hardcoded values
+                api.phones.verification_start(phonenumber, country_code='91', via='sms')  # Hardcoded values, via='call'  via='sms'
                 session['username'] = username
                 session['phone_number'] = phonenumber
                 return redirect(url_for('password_reset_verification'))
@@ -220,18 +220,24 @@ def display_reset_password():
 
 @app.route('/reset_password', methods=['POST'])
 def reset_password():
-    if 'new_password' in request.form:
+    if 'new_password' in request.form and 'confirm_password' in request.form:
         new_password = request.form['new_password']
-        hashed_password = generate_password_hash(new_password)
+        confirm_password = request.form['confirm_password']
 
-        username = session['username']
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("UPDATE accounts SET password = %s WHERE username = %s", (hashed_password, username))
-        mysql.connection.commit()
+        if new_password == confirm_password:
+            hashed_password = generate_password_hash(new_password)
 
-        return redirect(url_for('login'))
+            username = session['username']
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("UPDATE accounts SET password = %s WHERE username = %s", (hashed_password, username))
+            mysql.connection.commit()
+
+            return redirect(url_for('login'))
+        else:
+            return {"message": "Passwords do not match"}, 400
     else:
-        return ({"message": "Invalid request"}), 400
+        return {"message": "Invalid request"}, 400
+
 
 
 
